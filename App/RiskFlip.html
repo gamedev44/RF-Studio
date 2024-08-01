@@ -1,9 +1,9 @@
-<!--this is version 1.1 of riskflip with many added and also improved features-->
+<!--heres another update for risk flip this is the latest version that fixes input line offset position for precise srokes for those of you who enjoy making intricate designs with mouse or touchpen-->>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Flip -Version 1.1</title>
+    <title>Risk-Flip.com</title>
     <meta name="description" content="Risk-Flip.com - A powerful flip book animation tool with features similar to MS Paint. Create animations with ease and export them as images or MP4 videos.">
     <meta name="keywords" content="Risk-Flip, Flip Book Animation, Animation Tool, Draw, Export, MP4, Images, MS Paint">
     <meta name="author" content="Risk-Flip.com">
@@ -30,7 +30,6 @@
             align-items: center;
             flex-direction: column;
             height: 100vh;
-            zoom: 95%
         }
         #logo {
             margin-top: 20px;
@@ -65,7 +64,7 @@
             bottom: 10px;
             background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 10px;
+            padding: 5px;
             border-radius: 5px;
             display: none;
         }
@@ -100,6 +99,7 @@
     <div id="canvas-container">
         <canvas id="canvas" width="800" height="600"></canvas>
     </div>
+
     <div id="tools">
         <button onclick="addFrame()">Add Frame</button>
         <button onclick="playAnimation()">Play Animation</button>
@@ -113,6 +113,7 @@
         <input type="range" id="thicknessSlider" min="1" max="10" value="5" onchange="changeThickness(this.value)">
         <button onclick="showHint()">Show Hints</button>
     </div>
+
 
     <div class="dropdown">
         <button onclick="toggleDropdown()">Tools</button>
@@ -144,6 +145,30 @@
         canvas.isDrawingMode = true;
         canvas.freeDrawingBrush.color = 'black';
         canvas.freeDrawingBrush.width = 5;
+
+        // Add event listeners for drawing
+        canvas.on('mouse:down', function() {
+            isDrawing = true;
+        });
+
+        canvas.on('mouse:up', function() {
+            isDrawing = false;
+        });
+
+        canvas.on('mouse:move', function(event) {
+            if (isDrawing) {
+                const pointer = canvas.getPointer(event.e);
+                const points = [pointer.x, pointer.y, pointer.x, pointer.y];
+                const line = new fabric.Line(points, {
+                    strokeWidth: 5,
+                    fill: 'black',
+                    stroke: 'black',
+                    originX: 'center',
+                    originY: 'center'
+                });
+                canvas.add(line);
+            }
+        });
 
         // Function to change brush color
         function changeColor(color) {
@@ -465,9 +490,9 @@
             hint.style.display = 'block';
             setTimeout(() => {
                 hint.style.display = 'none';
-            }, 9000);
+            }, 5000);
         }
-
+        
         // Set up the initial canvas
         clearCanvas();
     </script>
