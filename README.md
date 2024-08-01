@@ -1,8 +1,8 @@
 ![Tool Logo](https://gcdnb.pbrd.co/images/wfgUeNRcOupv.png?o=1)
 
-# Risk Flip
+# Summary!
 
-Welcome to Risk Flip! This Project Aims to Provide an Interactive, Easy to Use Web-Based tool for creating flip book Animations Inspired by FlipNote Studios.
+Welcome to Risk Flip! This project aims to provide an interactive, easy-to-use web-based tool for creating flip book animations inspired by FlipNote Studios.
 
 ## Features
 
@@ -11,13 +11,21 @@ Welcome to Risk Flip! This Project Aims to Provide an Interactive, Easy to Use W
 - **Stop Animation**: Stop the animation and clear the canvas.
 - **Clear Canvas**: Clear the current drawing on the canvas and delete all frames (with confirmation).
 - **FPS Control**: Adjust the frames per second for the animation.
+- **Brush Tool**: Draw freely with adjustable color and thickness.
+- **Eraser Tool**: Erase parts of the drawing.
+- **Import Image**: Import images to the canvas.
+- **Animation Export**: Export animations as a set of frames/images or in .mp4 format.
+- **Select Box Tool**: Select and manipulate objects on the canvas.
+- **Resize Selection**: Resize selected objects.
+- **Primitive Shapes**: Draw straight lines, circles, rectangles, and triangles.
 
 ## Usage
 
-1. **Basic Stroke Tool**: Use a basic black line paint tool to draw strokes on the canvas.
+1. **Basic Stroke Tool**: Use a basic black brush paint tool to draw strokes on the canvas.
 2. **Adding Frames**: Click the "Add Frame" button to save the current drawing/stroke as a frame.
 3. **Playing Animation**: Use the "Play Animation" button to see your frames in action.
 4. **Clearing Canvas**: Click "Clear Canvas" to clear the drawing and delete all frames. This action is undoable and requires confirmation.
+5. **Extended Tools Dropdown**: Use the dropdown to select different options like the brush, various primitive shape tools, eraser, import image, export animation options, select box, and resize selection tools.
 
 ## Links
 
@@ -26,7 +34,7 @@ Welcome to Risk Flip! This Project Aims to Provide an Interactive, Easy to Use W
 
 ## Important Notice
 
-This project is closed source. Redistribution, tampering, or resale for profit is strictly prohibited. Please respect the terms and conditions set forth by the Developer.
+This project is closed source. Redistribution, tampering, or resale for profit is strictly prohibited. Please respect the terms and conditions set forth by the developer.
 
 ## Contact
 
@@ -34,13 +42,11 @@ For any inquiries or support, please visit our [official website](https://pgd-de
 
 Thank you for using Risk Flip!
 
+## To-Do (Ongoing WIP Features)
 
-## To-Do ( Ongoing WIP Feature's )
-
-- **Improved PaintBrush Tool**: add adjustable color and thickness options to the basic stroke tool.
-- **Eraser Tool**: Tool will allow you to Erase parts of the drawing.
-- **Import Image**: Will Enable to Ability to Import images to the canvas.
-- **Select Box Tool**: Lets you Select , Rotate and manipulate objects on the canvas.
-- **Resize Selection**: Allows Resizing selected object Via Control Points that act as Gizmo's when Selected.
-- **Multi-Layer Support**: Will Allow Users to work In Layers like in Gimp and PhotoShop.
-- **Animation Export**: The ability to Convert & Export Animations you made into a format like Mp4, Slide-Show or Sprite-sheets.
+- **Multi-Layer Support**: Will allow users to work in layers like in GIMP and Photoshop.
+- **Undo/Redo Function**: Will allow users to undo and redo last changes.
+- **Dark Mode**: Allows Users to Switch interface to Dark Mode to Save on Power Consumption.
+- **Layer Select Dropdown**: Allows Users to See and select Layers via Dropdown.
+- **Layer Hide Tool**: Allows users to Hide Selected Layers from the Layers Dropdowen.
+- **Live Chat Support**: Allows Users to get Instant Support & Technical Feedback Via Live-Chat.
