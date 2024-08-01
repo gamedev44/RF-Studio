@@ -1,0 +1,194 @@
+<!--this is a tool designed by asterisk for making simple animations from time to time without the need of overwhelming software.-->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Flip v1.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #f3ec78, #af4261);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #logo {
+            margin-top: 20px;
+        }
+        #canvas-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            background-color: white;
+        }
+        #tools {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button, input {
+            margin: 5px;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            background-color: #af4261;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="number"] {
+            width: 60px;
+        }
+        #hint {
+            position: fixed;
+            bottom: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <img id="logo" src="https://gcdnb.pbrd.co/images/wfgUeNRcOupv.png?o=1" alt="Tool Logo">
+    <div id="canvas-container">
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </div>
+    <div id="tools">
+        <button onclick="addFrame()">Add Frame</button>
+        <button onclick="playAnimation()">Play Animation</button>
+        <button onclick="stopAnimation()">Stop Animation</button>
+        <button onclick="clearCanvas()">Clear Canvas</button>
+        <label for="fpsInput">FPS:</label>
+        <input type="number" id="fpsInput" value="2" min="1">
+        <button onclick="showHint()">Show Hints</button>
+    </div>
+    <div id="hint">Use the buttons above to add frames, play animation, stop animation, and clear the canvas. Adjust the FPS to change the animation speed.</div>
+    <script>
+        let currentFrame = 1;
+        let frames = [];
+        let canvas = new fabric.Canvas('canvas');
+        let isDrawing = false;
+        let animation;
+
+        // Enable drawing mode
+        canvas.isDrawingMode = true;
+        canvas.freeDrawingBrush.color = 'black';
+        canvas.freeDrawingBrush.width = 5;
+
+        // Add event listeners for drawing
+        canvas.on('mouse:down', function() {
+            isDrawing = true;
+        });
+
+        canvas.on('mouse:up', function() {
+            isDrawing = false;
+        });
+
+        canvas.on('mouse:move', function(event) {
+            if (isDrawing) {
+                const pointer = canvas.getPointer(event.e);
+                const points = [pointer.x, pointer.y, pointer.x, pointer.y];
+                const line = new fabric.Line(points, {
+                    strokeWidth: 5,
+                    fill: 'black',
+                    stroke: 'black',
+                    originX: 'center',
+                    originY: 'center'
+                });
+                canvas.add(line);
+            }
+        });
+
+        // Function to add the current canvas drawing as a frame
+        function addFrame() {
+            const dataUrl = canvas.toDataURL();
+            frames.push(dataUrl);
+            clearCanvas();
+            if (frames.length > 0) {
+                setFaintBackground(frames[frames.length - 1]);
+            }
+        }
+
+        // Function to clear the canvas
+        function clearCanvas() {
+            canvas.clear();
+            canvas.backgroundColor = '#ffffff';
+            canvas.renderAll();
+        }
+
+        // Function to set a faint background image for tracing
+        function setFaintBackground(imageUrl) {
+            fabric.Image.fromURL(imageUrl, function(img) {
+                img.opacity = 0.3;
+                canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                    backgroundImageOpacity: 0.3,
+                    backgroundImageStretch: false
+                });
+            });
+        }
+
+        // Function to play the animation
+        function playAnimation() {
+            const fps = parseInt(document.getElementById('fpsInput').value) || 0.1;
+            if (animation) {
+                anime.remove(animation);
+            }
+            if (frames.length > 0) {
+                animation = anime({
+                    targets: frames,
+                    loop: true,
+                    easing: 'linear',
+                    duration: 1999 / fps,
+                    update: function(anim) {
+                        const frameIndex = Math.floor(anim.progress / 100 * frames.length);
+                        const img = new Image();
+                        img.src = frames[frameIndex];
+                        img.onload = function() {
+                            canvas.clear();
+                            canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas));
+                        };
+                    }
+                });
+            } else {
+                alert("No frames to play. Please add frames.");
+            }
+        }
+
+        // Function to stop the animation
+        function stopAnimation() {
+            if (animation) {
+                anime.remove(animation);
+                clearCanvas();
+                if (frames.length > 0) {
+                    const img = new Image();
+                    img.src = frames[0];
+                    img.onload = function() {
+                        canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas));
+                    };
+                }
+            }
+        }
+
+        // Function to show hint
+        function showHint() {
+            const hint = document.getElementById('hint');
+            hint.style.display = 'block';
+            setTimeout(() => {
+                hint.style.display = 'none';
+            }, 5000);
+        }
+
+        // Set up the initial canvas
+        clearCanvas();
+    </script>
+</body>
+</html>
