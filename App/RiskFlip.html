@@ -36,13 +36,14 @@
         }
         #canvas-container {
             position: relative;
-            width: 800px;
+            width: 1200px;
             height: 600px;
             margin: 20px auto;
             border: 1px solid #ccc;
             background-color: white;
+            left: 0%;
         }
-        #tools {
+        #tools, button {
             text-align: center;
             margin-top: 20px;
         }
@@ -92,12 +93,49 @@
             top: 10px;
             left: 10px;
         }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: 100vh;
+            }
+            #canvas-container {
+                width: 95vw;
+                height: 55vh;
+            }
+            #tools {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            button, input {
+                width: 45%;
+                margin: 5px;
+                padding: 10px;
+            }
+        }
+        @media screen and (orientation: portrait) {
+            body {
+                transform: rotate(90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                overflow: hidden;
+                position: absolute;
+                top: 100%;
+                left: 0;
+            }
+            #canvas-container {
+                width: 100vw;
+                height: 55vh;
+            }
+        }
+
     </style>
 </head>
 <body>
     <img id="logo" src="https://gcdnb.pbrd.co/images/wfgUeNRcOupv.png?o=1" alt="Tool Logo">
     <div id="canvas-container">
-        <canvas id="canvas" width="800" height="600"></canvas>
+        <canvas id="canvas" width="1200" height="600"></canvas>
     </div>
     <div id="tools">
         <button onclick="addFrame()">Add Frame</button>
@@ -378,6 +416,7 @@
             }
         }
 
+        
         // Function to set a faint background image for tracing
         function setFaintBackground(imageUrl) {
             fabric.Image.fromURL(imageUrl, function(img) {
@@ -388,6 +427,7 @@
                 });
             });
         }
+
 
         // Function to play the animation
         function playAnimation() {
@@ -416,6 +456,7 @@
             }
         }
 
+
         // Function to stop the animation
         function stopAnimation() {
             if (animation) {
@@ -431,6 +472,7 @@
             }
         }
 
+
         // Function to export frames as images
         function exportFrames() {
             frames.forEach((frame, index) => {
@@ -440,6 +482,7 @@
                 link.click();
             });
         }
+
 
         // Function to export animation as MP4
         async function exportAsMP4() {
@@ -458,6 +501,7 @@
             saveAs(blob, 'animation.mp4');
         }
 
+
         // Function to show hint
         function showHint() {
             const hint = document.getElementById('hint');
@@ -467,9 +511,11 @@
             }, 9000);
         }
 
+
         // Set up the initial canvas
         clearCanvas();
 
+        
         // Add touch event listeners for drawing
         canvas.on('touch:gesture', function() {});
         canvas.on('touch:drag', function() {});
