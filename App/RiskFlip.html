@@ -1,11 +1,24 @@
-<!--this is a tool designed by asterisk for making simple animations from time to time without the need of overwhelming software.-->
+<!--this is version 1.1 of riskflip with many added and also improved features-->>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Flip v1.0</title>
+    <title>Risk Flip -Version 1.1</title>
+    <meta name="description" content="Risk-Flip.com - A powerful flip book animation tool with features similar to MS Paint. Create animations with ease and export them as images or MP4 videos.">
+    <meta name="keywords" content="Risk-Flip, Flip Book Animation, Animation Tool, Draw, Export, MP4, Images, MS Paint">
+    <meta name="author" content="Risk-Flip.com">
+    <meta property="og:title" content="Risk-Flip Animation Tool">
+    <meta property="og:description" content="Create stunning flip book animations with Risk-Flip.com. Features include drawing tools, frame export, and MP4 video export.">
+    <meta property="og:image" content="https://pasteboard.co/wfgUeNRcOupv.png">
+    <meta property="og:url" content="https://Risk-Flip.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Risk-Flip Animation Tool">
+    <meta name="twitter:description" content="Create stunning flip book animations with Risk-Flip.com. Features include drawing tools, frame export, and MP4 video export.">
+    <meta name="twitter:image" content="https://pasteboard.co/wfgUeNRcOupv.png">
+    <link rel="icon" href="https://pasteboard.co/wfgUeNRcOupv.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,6 +30,7 @@
             align-items: center;
             flex-direction: column;
             height: 100vh;
+            zoom: 95%
         }
         #logo {
             margin-top: 20px;
@@ -33,7 +47,7 @@
             text-align: center;
             margin-top: 20px;
         }
-        button, input {
+        button, input, select {
             margin: 5px;
             padding: 10px;
             font-size: 1em;
@@ -55,6 +69,30 @@
             border-radius: 5px;
             display: none;
         }
+        #toolDropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        #toolDropdown button {
+            color: black;
+            background-color: white;
+            text-align: left;
+            width: 100%;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -66,47 +104,255 @@
         <button onclick="addFrame()">Add Frame</button>
         <button onclick="playAnimation()">Play Animation</button>
         <button onclick="stopAnimation()">Stop Animation</button>
-        <button onclick="clearCanvas()">Clear Canvas</button>
+        <button onclick="confirmClearCanvas()">Clear Canvas</button>
         <label for="fpsInput">FPS:</label>
         <input type="number" id="fpsInput" value="2" min="1">
+        <label for="colorPicker">Color:</label>
+        <input type="color" id="colorPicker" value="#000000" onchange="changeColor(this.value)">
+        <label for="thicknessSlider">Thickness:</label>
+        <input type="range" id="thicknessSlider" min="1" max="10" value="5" onchange="changeThickness(this.value)">
         <button onclick="showHint()">Show Hints</button>
     </div>
-    <div id="hint">Use the buttons above to add frames, play animation, stop animation, and clear the canvas. Adjust the FPS to change the animation speed.</div>
+
+    <div class="dropdown">
+        <button onclick="toggleDropdown()">Tools</button>
+        <div id="toolDropdown" class="dropdown-content">
+            <button onclick="activateBrush()">Brush</button>
+            <button onclick="activateEraser()">Eraser</button>
+            <button onclick="importImage()">Import Image</button>
+            <button onclick="activateSelectBox()">Select Box</button>
+            <button onclick="drawStraightLine()">Draw Line</button>
+            <button onclick="drawCircle()">Draw Circle</button>
+            <button onclick="drawRectangle()">Draw Rectangle</button>
+            <button onclick="drawTriangle()">Draw Triangle</button>
+            <button onclick="resizeSelection()">Resize Selection</button>
+            <button onclick="exportFrames()">Export Frames</button>
+            <button onclick="exportAsMP4()">Export as MP4</button>
+        </div>
+    </div>
+    <div id="hint">Use the buttons Above to add frames, play animation, stop animation, and clear the canvas. Adjust the FPS to change the animation speed.</div>
+    <input type="file" id="fileInput" style="display:none;" onchange="handleImageUpload(event)">
     <script>
         let currentFrame = 1;
         let frames = [];
         let canvas = new fabric.Canvas('canvas');
         let isDrawing = false;
         let animation;
+        let currentShape;
 
         // Enable drawing mode
         canvas.isDrawingMode = true;
         canvas.freeDrawingBrush.color = 'black';
         canvas.freeDrawingBrush.width = 5;
 
-        // Add event listeners for drawing
-        canvas.on('mouse:down', function() {
-            isDrawing = true;
-        });
+        // Function to change brush color
+        function changeColor(color) {
+            canvas.freeDrawingBrush.color = color;
+        }
 
-        canvas.on('mouse:up', function() {
-            isDrawing = false;
-        });
+        // Function to change brush thickness
+        function changeThickness(thickness) {
+            canvas.freeDrawingBrush.width = parseInt(thickness);
+        }
 
-        canvas.on('mouse:move', function(event) {
-            if (isDrawing) {
-                const pointer = canvas.getPointer(event.e);
-                const points = [pointer.x, pointer.y, pointer.x, pointer.y];
-                const line = new fabric.Line(points, {
-                    strokeWidth: 5,
-                    fill: 'black',
-                    stroke: 'black',
+        // Function to activate brush
+        function activateBrush() {
+            canvas.isDrawingMode = true;
+        }
+
+        // Function to activate eraser
+        function activateEraser() {
+            canvas.isDrawingMode = false;
+            canvas.on('mouse:down', function(event) {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    canvas.remove(activeObject);
+                }
+            });
+        }
+
+        // Function to import image
+        function importImage() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(f) {
+                const data = f.target.result;
+                fabric.Image.fromURL(data, function(img) {
+                    img.scaleToWidth(400);
+                    img.scaleToHeight(300);
+                    canvas.add(img);
+                    canvas.renderAll();
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Function to activate select box tool
+        function activateSelectBox() {
+            canvas.isDrawingMode = false;
+            canvas.selection = true;
+        }
+
+        // Function to draw straight line
+        function drawStraightLine() {
+            canvas.isDrawingMode = false;
+            let line, isDown;
+            canvas.on('mouse:down', function(o){
+                isDown = true;
+                const pointer = canvas.getPointer(o.e);
+                const points = [ pointer.x, pointer.y, pointer.x, pointer.y ];
+                line = new fabric.Line(points, {
+                    strokeWidth: canvas.freeDrawingBrush.width,
+                    fill: canvas.freeDrawingBrush.color,
+                    stroke: canvas.freeDrawingBrush.color,
                     originX: 'center',
                     originY: 'center'
                 });
                 canvas.add(line);
+            });
+            canvas.on('mouse:move', function(o){
+                if (!isDown) return;
+                const pointer = canvas.getPointer(o.e);
+                line.set({ x2: pointer.x, y2: pointer.y });
+                canvas.renderAll();
+            });
+            canvas.on('mouse:up', function(o){
+                isDown = false;
+            });
+        }
+
+        // Function to draw circle
+        function drawCircle() {
+            canvas.isDrawingMode = false;
+            let circle, isDown, origX, origY;
+            canvas.on('mouse:down', function(o){
+                isDown = true;
+                const pointer = canvas.getPointer(o.e);
+                origX = pointer.x;
+                origY = pointer.y;
+                circle = new fabric.Circle({
+                    left: origX,
+                    top: origY,
+                    originX: 'center',
+                    originY: 'center',
+                    radius: 1,
+                    strokeWidth: canvas.freeDrawingBrush.width,
+                    stroke: canvas.freeDrawingBrush.color,
+                    fill: 'rgba(0,0,0,0)'
+                });
+                canvas.add(circle);
+            });
+            canvas.on('mouse:move', function(o){
+                if (!isDown) return;
+                const pointer = canvas.getPointer(o.e);
+                const radius = Math.sqrt(Math.pow(origX - pointer.x, 2) + Math.pow(origY - pointer.y, 2));
+                circle.set({ radius: radius });
+                canvas.renderAll();
+            });
+            canvas.on('mouse:up', function(o){
+                isDown = false;
+            });
+        }
+
+        // Function to draw rectangle
+        function drawRectangle() {
+            canvas.isDrawingMode = false;
+            let rect, isDown, origX, origY;
+            canvas.on('mouse:down', function(o){
+                isDown = true;
+                const pointer = canvas.getPointer(o.e);
+                origX = pointer.x;
+                origY = pointer.y;
+                rect = new fabric.Rect({
+                    left: origX,
+                    top: origY,
+                    originX: 'left',
+                    originY: 'top',
+                    width: pointer.x - origX,
+                    height: pointer.y - origY,
+                    strokeWidth: canvas.freeDrawingBrush.width,
+                    stroke: canvas.freeDrawingBrush.color,
+                    fill: 'rgba(0,0,0,0)'
+                });
+                canvas.add(rect);
+            });
+            canvas.on('mouse:move', function(o){
+                if (!isDown) return;
+                const pointer = canvas.getPointer(o.e);
+                if(origX>pointer.x){
+                    rect.set({ left: Math.abs(pointer.x) });
+                }
+                if(origY>pointer.y){
+                    rect.set({ top: Math.abs(pointer.y) });
+                }
+                rect.set({ width: Math.abs(origX - pointer.x) });
+                rect.set({ height: Math.abs(origY - pointer.y) });
+                canvas.renderAll();
+            });
+            canvas.on('mouse:up', function(o){
+                isDown = false;
+            });
+        }
+
+        // Function to draw triangle
+        function drawTriangle() {
+            canvas.isDrawingMode = false;
+            let triangle, isDown, origX, origY;
+            canvas.on('mouse:down', function(o){
+                isDown = true;
+                const pointer = canvas.getPointer(o.e);
+                origX = pointer.x;
+                origY = pointer.y;
+                triangle = new fabric.Triangle({
+                    left: origX,
+                    top: origY,
+                    originX: 'left',
+                    originY: 'top',
+                    width: pointer.x - origX,
+                    height: pointer.y - origY,
+                    strokeWidth: canvas.freeDrawingBrush.width,
+                    stroke: canvas.freeDrawingBrush.color,
+                    fill: 'rgba(0,0,0,0)'
+                });
+                canvas.add(triangle);
+            });
+            canvas.on('mouse:move', function(o){
+                if (!isDown) return;
+                const pointer = canvas.getPointer(o.e);
+                if(origX>pointer.x){
+                    triangle.set({ left: Math.abs(pointer.x) });
+                }
+                if(origY>pointer.y){
+                    triangle.set({ top: Math.abs(pointer.y) });
+                }
+                triangle.set({ width: Math.abs(origX - pointer.x) });
+                triangle.set({ height: Math.abs(origY - pointer.y) });
+                canvas.renderAll();
+            });
+            canvas.on('mouse:up', function(o){
+                isDown = false;
+            });
+        }
+
+        // Function to resize selected object
+        function resizeSelection() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                activeObject.scaleToWidth(100);
+                activeObject.scaleToHeight(100);
+                canvas.renderAll();
             }
-        });
+        }
+
+        // Function to toggle dropdown menu
+        function toggleDropdown() {
+            const dropdown = document.getElementById('toolDropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
 
         // Function to add the current canvas drawing as a frame
         function addFrame() {
@@ -123,6 +369,14 @@
             canvas.clear();
             canvas.backgroundColor = '#ffffff';
             canvas.renderAll();
+        }
+
+        // Function to confirm and clear the canvas and frames
+        function confirmClearCanvas() {
+            if (confirm("Are you sure you want to proceed? This will delete all frames and is undoable.")) {
+                clearCanvas();
+                frames = [];
+            }
         }
 
         // Function to set a faint background image for tracing
@@ -178,13 +432,40 @@
             }
         }
 
+        // Function to export frames as images
+        function exportFrames() {
+            frames.forEach((frame, index) => {
+                const link = document.createElement('a');
+                link.href = frame;
+                link.download = `frame_${index + 1}.png`;
+                link.click();
+            });
+        }
+
+        // Function to export animation as MP4
+        async function exportAsMP4() {
+            const response = await fetch('https://api.tubemp4.to/fetchVideoFromFrames', {
+                method: 'POST',
+                body: JSON.stringify({
+                    frames: frames,
+                    fps: parseInt(document.getElementById('fpsInput').value) || 2
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const blob = await response.blob();
+            saveAs(blob, 'animation.mp4');
+        }
+
         // Function to show hint
         function showHint() {
             const hint = document.getElementById('hint');
             hint.style.display = 'block';
             setTimeout(() => {
                 hint.style.display = 'none';
-            }, 5000);
+            }, 9000);
         }
 
         // Set up the initial canvas
