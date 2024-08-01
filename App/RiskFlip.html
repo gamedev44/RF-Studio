@@ -30,7 +30,7 @@
             align-items: center;
             flex-direction: column;
             height: 100vh;
-            zoom: 95%
+            zoom: 95%;
         }
         #logo {
             margin-top: 20px;
@@ -470,6 +470,36 @@
 
         // Set up the initial canvas
         clearCanvas();
+
+        // Add touch event listeners for drawing
+        canvas.on('touch:gesture', function() {});
+        canvas.on('touch:drag', function() {});
+
+        canvas.on('touch:down', function(options) {
+            isDrawing = true;
+            const pointer = canvas.getPointer(options.e);
+            const points = [pointer.x, pointer.y, pointer.x, pointer.y];
+            currentShape = new fabric.Line(points, {
+                strokeWidth: canvas.freeDrawingBrush.width,
+                fill: canvas.freeDrawingBrush.color,
+                stroke: canvas.freeDrawingBrush.color,
+                originX: 'center',
+                originY: 'center'
+            });
+            canvas.add(currentShape);
+        });
+
+        canvas.on('touch:move', function(options) {
+            if (!isDrawing) return;
+            const pointer = canvas.getPointer(options.e);
+            currentShape.set({ x2: pointer.x, y2: pointer.y });
+            canvas.renderAll();
+        });
+
+        canvas.on('touch:up', function() {
+            isDrawing = false;
+        });
+
     </script>
 </body>
 </html>
