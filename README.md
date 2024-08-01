@@ -50,3 +50,4 @@ Thank you for using Risk Flip!
 - **Layer Select Dropdown**: Allows Users to See and select Layers via Dropdown.
 - **Layer Hide Tool**: Allows users to Hide Selected Layers from the Layers Dropdowen.
 - **Live Chat Support**: Allows Users to get Instant Support & Technical Feedback Via Live-Chat.
+- **Mobile Version**: Allows users to animate on Mobile Android devices.
