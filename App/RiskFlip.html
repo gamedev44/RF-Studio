@@ -1,9 +1,9 @@
-<!--heres another update for risk flip this is the latest version that fixes input line offset position for precise srokes for those of you who enjoy making intricate designs with mouse or touchpen-->>
+<!--this is version 1.2 of riskflip with many added and also improved features-->
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk-Flip.com</title>
+    <title>Risk-Flip.com/Version-1.2</title>
     <meta name="description" content="Risk-Flip.com - A powerful flip book animation tool with features similar to MS Paint. Create animations with ease and export them as images or MP4 videos.">
     <meta name="keywords" content="Risk-Flip, Flip Book Animation, Animation Tool, Draw, Export, MP4, Images, MS Paint">
     <meta name="author" content="Risk-Flip.com">
@@ -36,13 +36,14 @@
         }
         #canvas-container {
             position: relative;
-            width: 800px;
+            width: 1200px;
             height: 600px;
             margin: 20px auto;
             border: 1px solid #ccc;
             background-color: white;
+            left: 0%;
         }
-        #tools {
+        #tools, button {
             text-align: center;
             margin-top: 20px;
         }
@@ -92,14 +93,50 @@
             top: 10px;
             left: 10px;
         }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: 100vh;
+            }
+            #canvas-container {
+                width: 95vw;
+                height: 55vh;
+            }
+            #tools {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            button, input {
+                width: 45%;
+                margin: 5px;
+                padding: 10px;
+            }
+        }
+        @media screen and (orientation: portrait) {
+            body {
+                transform: rotate(90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                overflow: hidden;
+                position: absolute;
+                top: 100%;
+                left: 0;
+            }
+            #canvas-container {
+                width: 100vw;
+                height: 55vh;
+            }
+        }
+
     </style>
 </head>
 <body>
     <img id="logo" src="https://gcdnb.pbrd.co/images/wfgUeNRcOupv.png?o=1" alt="Tool Logo">
     <div id="canvas-container">
-        <canvas id="canvas" width="800" height="600"></canvas>
+        <canvas id="canvas" width="1200" height="600"></canvas>
     </div>
-
     <div id="tools">
         <button onclick="addFrame()">Add Frame</button>
         <button onclick="playAnimation()">Play Animation</button>
@@ -113,7 +150,6 @@
         <input type="range" id="thicknessSlider" min="1" max="10" value="5" onchange="changeThickness(this.value)">
         <button onclick="showHint()">Show Hints</button>
     </div>
-
 
     <div class="dropdown">
         <button onclick="toggleDropdown()">Tools</button>
@@ -145,30 +181,6 @@
         canvas.isDrawingMode = true;
         canvas.freeDrawingBrush.color = 'black';
         canvas.freeDrawingBrush.width = 5;
-
-        // Add event listeners for drawing
-        canvas.on('mouse:down', function() {
-            isDrawing = true;
-        });
-
-        canvas.on('mouse:up', function() {
-            isDrawing = false;
-        });
-
-        canvas.on('mouse:move', function(event) {
-            if (isDrawing) {
-                const pointer = canvas.getPointer(event.e);
-                const points = [pointer.x, pointer.y, pointer.x, pointer.y];
-                const line = new fabric.Line(points, {
-                    strokeWidth: 5,
-                    fill: 'black',
-                    stroke: 'black',
-                    originX: 'center',
-                    originY: 'center'
-                });
-                canvas.add(line);
-            }
-        });
 
         // Function to change brush color
         function changeColor(color) {
@@ -404,6 +416,7 @@
             }
         }
 
+
         // Function to set a faint background image for tracing
         function setFaintBackground(imageUrl) {
             fabric.Image.fromURL(imageUrl, function(img) {
@@ -414,6 +427,7 @@
                 });
             });
         }
+
 
         // Function to play the animation
         function playAnimation() {
@@ -442,6 +456,7 @@
             }
         }
 
+
         // Function to stop the animation
         function stopAnimation() {
             if (animation) {
@@ -457,6 +472,7 @@
             }
         }
 
+
         // Function to export frames as images
         function exportFrames() {
             frames.forEach((frame, index) => {
@@ -466,6 +482,7 @@
                 link.click();
             });
         }
+
 
         // Function to export animation as MP4
         async function exportAsMP4() {
@@ -484,17 +501,50 @@
             saveAs(blob, 'animation.mp4');
         }
 
+
         // Function to show hint
         function showHint() {
             const hint = document.getElementById('hint');
             hint.style.display = 'block';
             setTimeout(() => {
                 hint.style.display = 'none';
-            }, 5000);
+            }, 9000);
         }
-        
+
+
         // Set up the initial canvas
         clearCanvas();
+
+        
+        // Add touch event listeners for drawing
+        canvas.on('touch:gesture', function() {});
+        canvas.on('touch:drag', function() {});
+
+        canvas.on('touch:down', function(options) {
+            isDrawing = true;
+            const pointer = canvas.getPointer(options.e);
+            const points = [pointer.x, pointer.y, pointer.x, pointer.y];
+            currentShape = new fabric.Line(points, {
+                strokeWidth: canvas.freeDrawingBrush.width,
+                fill: canvas.freeDrawingBrush.color,
+                stroke: canvas.freeDrawingBrush.color,
+                originX: 'center',
+                originY: 'center'
+            });
+            canvas.add(currentShape);
+        });
+
+        canvas.on('touch:move', function(options) {
+            if (!isDrawing) return;
+            const pointer = canvas.getPointer(options.e);
+            currentShape.set({ x2: pointer.x, y2: pointer.y });
+            canvas.renderAll();
+        });
+
+        canvas.on('touch:up', function() {
+            isDrawing = false;
+        });
+
     </script>
 </body>
 </html>
